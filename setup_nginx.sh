@@ -29,6 +29,7 @@ ask() {
 # --- Prerequisite Installers ---
 install_acme_sh() {
     info "Installing acme.sh..."
+    apt-get install cron socat
     if curl https://get.acme.sh | sh -s email="$EMAIL"; then
         success "acme.sh installed. You may need to run 'source ~/.bashrc' or restart your terminal."
     else
@@ -37,7 +38,8 @@ install_acme_sh() {
 }
 install_docker() {
     info "Installing Docker..."
-    apt-get update && apt-get install -y ca-certificates curl gnupg
+    # *** MODIFIED: Added 'socat' to this line ***
+    apt-get update && apt-get install -y ca-certificates curl gnupg socat
     install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     chmod a+r /etc/apt/keyrings/docker.gpg
@@ -140,7 +142,6 @@ EOF
     rm -f "$NGINX_CONF_FILE"
 
     if [[ "$HAS_SUB_PAGE" == "y" ]]; then
-        # *** CORRECTED: Using your full, detailed template for Panel + Sub Page ***
         cat << EOF > "$NGINX_CONF_FILE"
 upstream remnawave {
     server remnawave:3000;
@@ -241,7 +242,6 @@ server {
 EOF
         success "nginx.conf created for Panel and Subscription Page."
     else
-        # *** CORRECTED: Using your full, detailed template for Panel Only ***
         SERVER_NAMES=$(IFS=$' '; echo "${DOMAINS[*]}")
         cat << EOF > "$NGINX_CONF_FILE"
 upstream remnawave {
